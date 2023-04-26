@@ -16,7 +16,7 @@
 .env
 .DS_Store
 **.local.*
-**/garbege/*
+*/garbege/*
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
