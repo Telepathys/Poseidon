@@ -18,7 +18,8 @@ public class Router
             case "server_message_send":
             case "whisper_message_send":
             case "group_message_send":
-                _chatRouter.ChatRouting(route, webSockets, user, message, cts);
+                if (Program.messageLimit.Check(webSockets, user))
+                    _chatRouter.ChatRouting(route, webSockets, user, message, cts);
                 break;
             case "group_join":
             case "group_leave":

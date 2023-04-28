@@ -59,5 +59,9 @@ public class Socket
             GroupLeave groupLeave = new GroupLeave();
             groupLeave.Leave(webSockets, user, new StringBuilder(), new CancellationTokenSource(), myGroupKey);
         }
+        
+        // 메세지 제한 초기화
+        MessageLimit.messageHistory.TryRemove(uid, out _);
+        MessageLimit.messageBan.TryRemove(uid, out _);
     }
 }

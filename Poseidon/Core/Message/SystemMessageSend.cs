@@ -7,7 +7,7 @@ namespace Poseidon;
 
 public class SystemMessage
 {
-    public void Send(User user, ConcurrentDictionary<User, WebSocket> webSockets, string message)
+    public void Send(ConcurrentDictionary<User, WebSocket> webSockets, User user, string message)
     {
         
         ResponseSystemMessageSendType responseSystemMessageSend = new ResponseSystemMessageSendType

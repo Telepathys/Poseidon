@@ -16,6 +16,7 @@ class Program
     public static ConcurrentDictionary<string, ConcurrentDictionary<string, WebSocket>> group = new ConcurrentDictionary<string, ConcurrentDictionary<string, WebSocket>>();
     public static readonly Socket socket = new Socket();
     public static readonly SystemMessage systemMessage = new SystemMessage();
+    public static readonly MessageLimit messageLimit = new MessageLimit();
     
     static void Main(string[] args)
     {
