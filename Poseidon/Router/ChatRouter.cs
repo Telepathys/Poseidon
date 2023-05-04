@@ -9,6 +9,7 @@ public class ChatRouter
     private static readonly ServerMessage serverMessage = new ServerMessage();
     private static readonly WhisperMessage whisperMessage = new WhisperMessage();
     private static readonly GroupMessage groupMessage = new GroupMessage();
+    private static readonly MatchMessage matchMessage = new MatchMessage();
     public void ChatRouting(string route, User user, StringBuilder message, CancellationTokenSource cts)
     {
         switch (route)
@@ -21,6 +22,9 @@ public class ChatRouter
                 break;
             case "group_message_send":
                 groupMessage.Send(user, message, cts);
+                break;
+            case "match_message_send":
+                matchMessage.Send(user, message, cts);
                 break;
         }
     }

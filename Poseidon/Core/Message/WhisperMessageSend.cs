@@ -39,7 +39,7 @@ public class WhisperMessage
         }
         else
         {
-            Program.systemMessage.Send(webSockets, user, "A user who does not exist or is not login.");
+            Program.systemMessage.Send(user, "A user who does not exist or is not login.");
             Program.logger.Warn("Target user not found");
         }
     }

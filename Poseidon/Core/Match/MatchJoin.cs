@@ -3,7 +3,6 @@ using System.Net.WebSockets;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Poseidon.Model.Type.Router.Match;
 
 namespace Poseidon;
 
@@ -27,7 +26,7 @@ public class MatchJoin
         
         if(currentMatchDictionary.Check(uid))
         {
-            Program.systemMessage.Send(webSockets, user, "이미 다른 매치에 참여중입니다.");
+            Program.systemMessage.Send(user, "이미 다른 매치에 참여중입니다.");
             return;
         }
         

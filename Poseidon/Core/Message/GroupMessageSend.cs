@@ -44,7 +44,7 @@ public class GroupMessage
         }
         else
         {
-            Program.systemMessage.Send(webSockets, user, "You are not in a group");
+            Program.systemMessage.Send(user, "You are not in a group");
             Program.logger.Warn($"{user.usn}님은 그룹에 속해 있지 않습니다.");
         }
     }

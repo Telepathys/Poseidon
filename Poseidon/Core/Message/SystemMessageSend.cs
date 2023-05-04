@@ -7,9 +7,10 @@ namespace Poseidon;
 
 public class SystemMessage
 {
-    public void Send(ConcurrentDictionary<User, WebSocket> webSockets, User user, string message)
+    public void Send(User user, string message)
     {
-        
+        SocketDictionary socketDictionary = SocketDictionary.GetSocketDictionary();
+        ConcurrentDictionary<User, WebSocket> webSockets = socketDictionary.GetSocketList();
         ResponseSystemMessageSendType responseSystemMessageSend = new ResponseSystemMessageSendType
         {
             type = Enum.GetName(typeof(MessageSendType), MessageSendType.SystemMessage),

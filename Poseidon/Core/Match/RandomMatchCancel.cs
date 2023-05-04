@@ -22,7 +22,7 @@ public class RandomMatchCancel
         }
         else
         {
-            Program.systemMessage.Send(webSockets, user,"매치 대기중이 아닙니다.");
+            Program.systemMessage.Send(user,"매치 대기중이 아닙니다.");
         }
     }
 }

@@ -28,7 +28,7 @@ public class RandomMatchWait
         }
         else
         {
-            Program.systemMessage.Send(webSockets, user, "이미 매치 대기중입니다.");
+            Program.systemMessage.Send(user, "이미 매치 대기중입니다.");
         }
     }
 }

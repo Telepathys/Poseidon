@@ -32,7 +32,7 @@ public class MessageLimit
             int leftBanTime = banSecondlimit - (now - banTime).Seconds;
             if (leftBanTime > 0)
             {
-                Program.systemMessage.Send(webSockets, user, $"메세지가 제한된 상태입니다. {leftBanTime}초 후에 다시 시도해주세요.");
+                Program.systemMessage.Send(user, $"메세지가 제한된 상태입니다. {leftBanTime}초 후에 다시 시도해주세요.");
                 return false;
             }
             messageBanDictionary.RemoveMessageBan(uid);
@@ -57,7 +57,7 @@ public class MessageLimit
         if (messageHistoryArray.Length >= messageCountlimit)
         {
             Program.logger.Warn($"{usn}({uid})님이 무분별한 메세지로 {banSecondlimit}초간 메세지 전송이 제한됩니다.");
-            Program.systemMessage.Send(webSockets, user, $"무분별한 메세지로 {banSecondlimit}초간 메세지 전송이 제한됩니다.");
+            Program.systemMessage.Send(user, $"무분별한 메세지로 {banSecondlimit}초간 메세지 전송이 제한됩니다.");
             messageBanDictionary.SetMessageBan(uid);
             messageHistoryDictionary.RemoveMyMessageHistory(uid);
             return false;

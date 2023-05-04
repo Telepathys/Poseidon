@@ -15,8 +15,6 @@ public class GroupLeave
     
     public void Leave(User user, StringBuilder message, CancellationTokenSource cts, string extraGroupKey = null)
     {
-        SocketDictionary socketDictionary = SocketDictionary.GetSocketDictionary();
-        ConcurrentDictionary<User, WebSocket> webSockets = socketDictionary.GetSocketList();
         CurrentGroupDictionary currentGroupDictionary = CurrentGroupDictionary.GetCurrentGroupDictionary();
         GroupDictionary groupDictionary = GroupDictionary.GetGroupDictionary();
         string uid = user.uid;

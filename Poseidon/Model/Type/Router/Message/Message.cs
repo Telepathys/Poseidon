@@ -34,6 +34,17 @@ public class ResponseGroupMessageSendType {
     public string message { get; set; }
 }
 
+public class MatchMessageSendType {
+    public string message { get; set; }
+}
+
+public class ResponseMatchMessageSendType {
+    public string type { get; set; }
+    public string uid { get; set; }
+    public string username { get; set; }
+    public string message { get; set; }
+}
+
 public class ResponseErrorMessageSendType {
     public string type { get; set; }
     public string error { get; set; }

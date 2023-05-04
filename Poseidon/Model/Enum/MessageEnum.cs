@@ -7,6 +7,7 @@ public enum MessageSendType
     ServerMessage,
     WhisperMessage,
     GroupMessage,
+    MatchMessage,
     GroupJoin,
     GroupLeave,
     RandomMatchWait,

@@ -9,6 +9,7 @@ public class MatchRouter
     private static readonly RandomMatchWait randomMatchWait = new RandomMatchWait();
     private static readonly RandomMatchCancel randomMatchCancel = new RandomMatchCancel();
     private static readonly MatchJoin matchJoin = new MatchJoin();
+    private static readonly MatchLeave matchLeave = new MatchLeave();
     public void MatchRouting(string route, User user, StringBuilder message, CancellationTokenSource cts)
     {
         switch (route)
@@ -23,6 +24,7 @@ public class MatchRouter
                 matchJoin.Join(user, message, cts);
                 break;
             case "match_leave":
+                matchLeave.Leave(user, message, cts);
                 break;
         }
     }
