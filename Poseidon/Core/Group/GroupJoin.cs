@@ -25,7 +25,7 @@ public class GroupJoin
         string groupKey;
         if (groupName == null)
         {
-            Program.logger.Error("그룹 이름이 없습니다. <GroupJoin-1>", webSockets, user);
+            Program.logger.Error("그룹 이름이 없습니다. <GroupJoin-1>", user);
             return;
         }
 

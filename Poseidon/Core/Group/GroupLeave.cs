@@ -34,20 +34,20 @@ public class GroupLeave
 
         if (groupKey == null)
         {
-            Program.logger.Error("그룹 키가 없습니다. <GroupLeave-1>", webSockets, user);
+            Program.logger.Error("그룹 키가 없습니다. <GroupLeave-1>", user);
             return;
         }
         currentGroupDictionary.RemoveMyGroup(uid);
         ConcurrentDictionary<string, WebSocket> groupList = groupDictionary.GetGroupList(groupKey);
         if (groupList == null)
         {
-            Program.logger.Error("그룹키에 맞는 그룹이 존재하지 않습니다. <GroupLeave-2>", webSockets, user);
+            Program.logger.Error("그룹키에 맞는 그룹이 존재하지 않습니다. <GroupLeave-2>", user);
             return;
         }
         groupList.TryGetValue(uid, out WebSocket mySocket);
         if (mySocket == null)
         {
-            Program.logger.Error("해당 그룹에 나의 소켓이 존재하지 않습니다. <GroupLeave-3>", webSockets, user);
+            Program.logger.Error("해당 그룹에 나의 소켓이 존재하지 않습니다. <GroupLeave-3>", user);
             return;
         }
 

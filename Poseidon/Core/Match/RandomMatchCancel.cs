@@ -17,7 +17,7 @@ public class RandomMatchCancel
         if (randomMatchDictionary.CheckKey(user))
         {
             randomMatchDictionary.RemoveMeFromRandomList(user);
-            randomMatchMessageSend.Send(webSockets, user, MessageSendType.RandomMatchCancel,"랜덤 매치를 취소하였습니다.");
+            randomMatchMessageSend.Send(user, MessageSendType.RandomMatchCancel,"랜덤 매치를 취소하였습니다.");
             Program.logger.Info($"{usn}({uid})님이 랜덤 매치를 정상적으로 취소하였습니다.");
         }
         else

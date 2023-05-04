@@ -8,8 +8,10 @@ namespace Poseidon;
 
 public class ErrorMessage
 {
-    public void Send(User user, ConcurrentDictionary<User, WebSocket> webSockets, string message)
+    public void Send(User user, string message)
     {
+        SocketDictionary socketDictionary = SocketDictionary.GetSocketDictionary();
+        ConcurrentDictionary<User, WebSocket> webSockets = socketDictionary.GetSocketList();
         string error;
         try
         {

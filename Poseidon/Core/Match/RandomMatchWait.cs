@@ -24,7 +24,7 @@ public class RandomMatchWait
             webSockets.TryGetValue(user, out WebSocket mySocket);
             randomMatchDictionary.SetMySocketFromRandomList(user, mySocket);
             Program.logger.Info($"{usn}({uid})님이 랜덤 매치를 정상적으로 시작하였습니다.");
-            randomMatchMessageSend.Send(webSockets, user, MessageSendType.RandomMatchWait,"랜덤 매치를 시작합니다.");
+            randomMatchMessageSend.Send(user, MessageSendType.RandomMatchWait,"랜덤 매치를 시작합니다.");
         }
         else
         {

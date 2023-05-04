@@ -46,11 +46,11 @@ public class Logger
     {
         _logger.LogWarning(message);
     }
-    public void Error(string message, ConcurrentDictionary<User, WebSocket>? webSockets = null, User? user = null)
+    public void Error(string message, User? user = null)
     {
         _logger.LogError(message);
-        if(webSockets != null && user != null)
-            _errorMessage.Send(user, webSockets, message);
+        if(user != null)
+            _errorMessage.Send(user, message);
     }
     public void Critical(string message)
     {

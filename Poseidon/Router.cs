@@ -28,8 +28,8 @@ public class Router
                 break;
             case "random_match_wait":
             case "random_match_cancel":
-            case "random_match_join":
-            case "random_match_leave":
+            case "match_join":
+            case "match_leave":
                 _MatchRouter.MatchRouting(route, user, message, cts);
                 break;
             default:

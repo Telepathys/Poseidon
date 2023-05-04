@@ -17,8 +17,6 @@ class Program
     public static readonly SystemMessage systemMessage = new SystemMessage();
     public static readonly MessageLimit messageLimit = new MessageLimit();
     public static readonly Router Router = new Router();
-    // 초기화 필요
-    public static ConcurrentDictionary<string, string> currenMatch = new ConcurrentDictionary<string, string>();
     
     static void Main(string[] args)
     {

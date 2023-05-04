@@ -1,19 +1,24 @@
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Microsoft.CSharp.RuntimeBinder;
+using Newtonsoft.Json;
+using Poseidon.Model.Type.Router.Match;
 
 namespace Poseidon;
 
 public class RandomMatchSystem
 {
     RandomMatchDictionary randomMatchDictionary = RandomMatchDictionary.GetRandomMatchDictionary();
+    ActiveMatchDictionary activeMatchDictionary = ActiveMatchDictionary.GetActiveMatchDictionary();
     RandomMatchMessageSend randomMatchMessageSend = new RandomMatchMessageSend();
     Mutex mutex = new Mutex(false,"RandomMatchSystemDetect");
     Random random = new Random();
     // 한개의 매칭당 필요 인원
     readonly int matchRequireUserCount = 2;
     readonly double matchMakeCountControl = 0.1;
+    private readonly int matchJoinLimitTime = 30;
     public void Detect(object? state)
     {
         mutex.WaitOne();
@@ -45,24 +50,29 @@ public class RandomMatchSystem
                 foreach (var ramdomMatchWaitUser in completeRandomMatch)
                 {
                     User user = ramdomMatchWaitUser.Key;
-                    randomMatchMessageSend.Send(completeRandomMatch, user, MessageSendType.RandomMatchComplete,"랜덤 매치가 성공적으로 매칭되었습니다.", matchId);
+                    randomMatchMessageSend.Send(user, MessageSendType.RandomMatchComplete,"랜덤 매치가 성공적으로 매칭되었습니다.", matchId);
                     randomMatchWaitList.TryRemove(user, out _);
                 }
-                waitMatchJoin(matchId);
+                activeMatchDictionary.SetActiveMatch(matchId);
+                waitMatchJoin(matchId, completeRandomMatch);
             }
         }
 
         mutex.ReleaseMutex();
     }
 
-    public async Task waitMatchJoin(string matchId)
+    public async Task waitMatchJoin(string matchId, ConcurrentDictionary<User,WebSocket> completeRandomMatch)
     {
         MatchDictionary matchDictionary = MatchDictionary.GetMatchDictionary();
+        CurrentMatchDictionary currentMatchDictionary = CurrentMatchDictionary.GetCurrentMatchDictionary();
+        ActiveMatchDictionary activeMatchDictionary = ActiveMatchDictionary.GetActiveMatchDictionary();
+        
         var cancellationTokenSource = new CancellationTokenSource();
         var cancellationToken = cancellationTokenSource.Token;
         using var timer = new Timer(async state =>
         {
-            ConcurrentDictionary<string, WebSocket> match = matchDictionary.GetMatch(matchId);
+            ConcurrentDictionary<User, WebSocket> match = matchDictionary.GetMatch(matchId);
+            Console.WriteLine(match?.Count);
             if (match?.Count == matchRequireUserCount)
             {
                 cancellationTokenSource.Cancel();
@@ -70,19 +80,78 @@ public class RandomMatchSystem
         }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
         
         // 10초 동안 대기하는 비동기 작업
-        await Task.Delay(TimeSpan.FromSeconds(9), cancellationToken);
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(matchJoinLimitTime), cancellationToken);
+        }
+        catch (TaskCanceledException)
+        {
+            Program.logger.Info($"{matchId} 매치 인원이 전부 입장 완료");
+        }
         timer.Dispose();
         
-        ConcurrentDictionary<string, WebSocket> match = matchDictionary.GetMatch(matchId);
+        ConcurrentDictionary<User, WebSocket> match = matchDictionary.GetMatch(matchId);
         // 랜덤매칭 결과
         // 매칭 성공 or 실패
         if (match?.Count == matchRequireUserCount)
         {
-            Console.WriteLine("asdasdasdas");
+            var tasks = new List<Task>();
+            ResponseMatchStatusType responseMatchStatusType = new ResponseMatchStatusType
+            {
+                type = Enum.GetName(typeof(MessageSendType), MessageSendType.MatchStart),
+                matchId = matchId,
+                username = "System",
+                message = "매치 인원이 전부 입장이 완료 되어 매치가 시작됩니다."
+            };
+            string responseMatchStatusJson = JsonConvert.SerializeObject(responseMatchStatusType);
+            byte[] encodedMessage = Encoding.UTF8.GetBytes(responseMatchStatusJson);
+            
+            foreach (var socket in match)
+            {
+                if (socket.Value.State == WebSocketState.Open)
+                {
+                    tasks.Add(socket.Value.SendAsync(new ArraySegment<byte>(encodedMessage, 0, encodedMessage.Length), WebSocketMessageType.Text, true, CancellationToken.None));
+                }
+                currentMatchDictionary.SetMyMatch(socket.Key.uid, matchId);
+            }
+            Task.WhenAll(tasks);
+            Program.logger.Info($"{matchId} 매치가 시작됩니다.");
         }
         else
         {
-            Console.WriteLine("123123");
+            RandomMatchDictionary randomMatchDictionary = RandomMatchDictionary.GetRandomMatchDictionary();
+            var tasks = new List<Task>();
+            ResponseMatchStatusType responseMatchStatusType = new ResponseMatchStatusType
+            {
+                type = Enum.GetName(typeof(MessageSendType), MessageSendType.MatchFail),
+                matchId = matchId,
+                username = "System",
+                message = "매치 인원이 전부 입장하지 않아 매치 대기상태로 돌아갑니다."
+            };
+            string responseMatchStatusJson = JsonConvert.SerializeObject(responseMatchStatusType);
+            byte[] encodedMessage = Encoding.UTF8.GetBytes(responseMatchStatusJson);
+            
+            matchDictionary.RemoveMatch(matchId);
+            activeMatchDictionary.RemoveActiveMatch(matchId);
+            foreach (var randomMatchUser in completeRandomMatch)
+            {
+                User user = randomMatchUser.Key;
+                string uid = user.uid;
+                currentMatchDictionary.RemoveMyMatch(uid);
+                
+            }
+            foreach (var matchJoinData in match)
+            {
+                User user = matchJoinData.Key;
+                WebSocket mySocket = matchJoinData.Value;
+                randomMatchDictionary.SetMySocketFromRandomList(user, mySocket);
+                if (mySocket.State == WebSocketState.Open)
+                {
+                    tasks.Add(mySocket.SendAsync(new ArraySegment<byte>(encodedMessage, 0, encodedMessage.Length), WebSocketMessageType.Text, true, CancellationToken.None));
+                }
+            }
+            Task.WhenAll(tasks);
+            Program.logger.Info($"{matchId} 매치가 실패하였습니다 들어온 유저들은 매치 대기상태로 이동됩니다.");
         }
     }
 }

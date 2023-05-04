@@ -7,8 +7,10 @@ namespace Poseidon;
 
 public class RandomMatchMessageSend
 {
-    public void Send(ConcurrentDictionary<User, WebSocket> webSockets, User user, MessageSendType messageSendType, string message, string matchId = null)
+    public void Send(User user, MessageSendType messageSendType, string message, string matchId = null)
     {
+        SocketDictionary socketDictionary = SocketDictionary.GetSocketDictionary();
+        ConcurrentDictionary<User, WebSocket> webSockets = socketDictionary.GetSocketList();
         string uid = user.uid;
         string usn = user.usn;
         ResponseRandomMatchMessageSendType responseRandomMatchMessageSend = new ResponseRandomMatchMessageSendType

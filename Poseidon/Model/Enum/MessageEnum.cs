@@ -12,4 +12,8 @@ public enum MessageSendType
     RandomMatchWait,
     RandomMatchCancel,
     RandomMatchComplete,
+    MatchJoin,
+    MatchStart,
+    MatchFail,
+    MatchLeave,
 }
