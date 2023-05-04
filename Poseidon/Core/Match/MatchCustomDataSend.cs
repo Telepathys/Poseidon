@@ -6,28 +6,33 @@ using Newtonsoft.Json.Linq;
 
 namespace Poseidon;
 
-public class MatchMessage
+public class MatchCustomData
 {
     public void Send(User user, StringBuilder message, CancellationTokenSource cts)
     {
         CurrentMatchDictionary currentMatchDictionary = CurrentMatchDictionary.GetCurrentMatchDictionary();
         MatchDictionary matchDictionary = MatchDictionary.GetMatchDictionary();
-        MatchMessageSendType matchMessageSend = JsonConvert.DeserializeObject<MatchMessageSendType>(JObject.Parse(message.ToString()).First.First.ToString());
+        MatchCustomDataType matchCustomData = JsonConvert.DeserializeObject<MatchCustomDataType>(JObject.Parse(message.ToString()).First.First.ToString());
         string uid = user.uid;
         string usn = user.usn;
         string matchId = currentMatchDictionary.GetMyMatchId(uid);
+        int dataType = matchCustomData.dataType;
+        byte[] data = matchCustomData.data;
+        
         if (matchId != null)
         {
             ConcurrentDictionary<User, WebSocket> matchList = matchDictionary.GetMatch(matchId);
-            ResponseMatchMessageSendType ResponseMatchMessageSend = new ResponseMatchMessageSendType
+            ResponseMatchCustomDataType ResponseMatchCustomData = new ResponseMatchCustomDataType
             {
-                type = Enum.GetName(typeof(MessageSendType), MessageSendType.MatchMessage),
+                type = Enum.GetName(typeof(MessageSendType), MessageSendType.MatchCustomData),
+                matchId = matchId,
                 uid = uid,
                 username = usn,
-                message = matchMessageSend.message
+                dataType = dataType,
+                data = data,
             };
-            string ResponseMatchMessageSendJson = JsonConvert.SerializeObject(ResponseMatchMessageSend);
-            byte[] encodedMessage = Encoding.UTF8.GetBytes(ResponseMatchMessageSendJson);
+            string ResponseMatchCustomDataJson = JsonConvert.SerializeObject(ResponseMatchCustomData);
+            byte[] encodedMessage = Encoding.UTF8.GetBytes(ResponseMatchCustomDataJson);
             
             var tasks = new List<Task>();
             foreach (var socket in matchList)

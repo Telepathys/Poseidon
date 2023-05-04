@@ -17,4 +17,5 @@ public enum MessageSendType
     MatchStart,
     MatchFail,
     MatchLeave,
+    MatchCustomData,
 }

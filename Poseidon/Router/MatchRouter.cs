@@ -10,6 +10,7 @@ public class MatchRouter
     private static readonly RandomMatchCancel randomMatchCancel = new RandomMatchCancel();
     private static readonly MatchJoin matchJoin = new MatchJoin();
     private static readonly MatchLeave matchLeave = new MatchLeave();
+    private static readonly MatchCustomData MatchCustomData = new MatchCustomData();
     public void MatchRouting(string route, User user, StringBuilder message, CancellationTokenSource cts)
     {
         switch (route)
@@ -25,6 +26,9 @@ public class MatchRouter
                 break;
             case "match_leave":
                 matchLeave.Leave(user, message, cts);
+                break;
+            case "match_custom_data_send":
+                MatchCustomData.Send(user, message, cts);
                 break;
         }
     }

@@ -52,12 +52,12 @@ public class Socket
         CurrentGroupDictionary currentGroupDictionary = CurrentGroupDictionary.GetCurrentGroupDictionary();
         MessageHistoryDictionary messageHistoryDictionary = MessageHistoryDictionary.GetMessageHistoryDictionary();
         MessageBanDictionary messageBanDictionary = MessageBanDictionary.GetMessageBanDictionary();
+        CurrentMatchDictionary currentMatchDictionary = CurrentMatchDictionary.GetCurrentMatchDictionary();
         
         // 소켓 초기화
         socketDictionary.RemoveMySocket(user);
         
         // 그룹 관련 초기화
-
         string myGroupKey = currentGroupDictionary.GetMyGroup(uid);
         if (myGroupKey != null)
         {
@@ -68,5 +68,13 @@ public class Socket
         // 메세지 제한 초기화
         messageHistoryDictionary.RemoveMyMessageHistory(uid);
         messageBanDictionary.RemoveMessageBan(uid);
+        
+        // 매치 관련 초기화
+        string matchId = currentMatchDictionary.GetMyMatchId(uid);
+        if (matchId != null)
+        {
+            MatchLeave matchLeave = new MatchLeave();
+            matchLeave.Leave(user, new StringBuilder(), new CancellationTokenSource());
+        }
     }
 }

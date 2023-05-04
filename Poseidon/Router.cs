@@ -31,6 +31,7 @@ public class Router
             case "random_match_cancel":
             case "match_join":
             case "match_leave":
+            case "match_custom_data_send":
                 _MatchRouter.MatchRouting(route, user, message, cts);
                 break;
             default:
