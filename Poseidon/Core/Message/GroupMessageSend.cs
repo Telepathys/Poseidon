@@ -8,15 +8,19 @@ namespace Poseidon;
 
 public class GroupMessage
 {
-    public void Send(ConcurrentDictionary<User,WebSocket> webSockets, User user, StringBuilder message, CancellationTokenSource cts)
+    public void Send(User user, StringBuilder message, CancellationTokenSource cts)
     {
+        SocketDictionary socketDictionary = SocketDictionary.GetSocketDictionary();
+        ConcurrentDictionary<User, WebSocket> webSockets = socketDictionary.GetSocketList();
+        CurrentGroupDictionary currentGroupDictionary = CurrentGroupDictionary.GetCurrentGroupDictionary();
+        GroupDictionary groupDictionary = GroupDictionary.GetGroupDictionary();
         GroupMessageSendType groupMessageSend = JsonConvert.DeserializeObject<GroupMessageSendType>(JObject.Parse(message.ToString()).First.First.ToString());
         string uid = user.uid;
         string usn = user.uid;
-        Program.currenGroup.TryGetValue(uid, out string myGroupKey);
+        string myGroupKey = currentGroupDictionary.GetMyGroup(uid);
         if (myGroupKey != null)
         {
-            Program.group.TryGetValue(myGroupKey, out ConcurrentDictionary<string, WebSocket> groupSocket);
+            ConcurrentDictionary<string, WebSocket> groupList = groupDictionary.GetGroupList(myGroupKey);
             ResponseGroupMessageSendType responseGroupMessageSend = new ResponseGroupMessageSendType
             {
                 type = Enum.GetName(typeof(MessageSendType), MessageSendType.GroupMessage),
@@ -28,7 +32,7 @@ public class GroupMessage
             byte[] encodedMessage = Encoding.UTF8.GetBytes(responseServerMessageSendJson);
             
             var tasks = new List<Task>();
-            foreach (var socket in groupSocket)
+            foreach (var socket in groupList)
             {
                 if (socket.Value.State == WebSocketState.Open && socket.Key != uid)
                 {

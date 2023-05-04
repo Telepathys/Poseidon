@@ -13,8 +13,12 @@ public class GroupLeave
     private ResponseGroupLeaveType responseGroupLeave;
     private string responseGroupLeaveJson;
     
-    public void Leave(ConcurrentDictionary<User, WebSocket> webSockets, User user, StringBuilder message, CancellationTokenSource cts, string extraGroupKey = null)
+    public void Leave(User user, StringBuilder message, CancellationTokenSource cts, string extraGroupKey = null)
     {
+        SocketDictionary socketDictionary = SocketDictionary.GetSocketDictionary();
+        ConcurrentDictionary<User, WebSocket> webSockets = socketDictionary.GetSocketList();
+        CurrentGroupDictionary currentGroupDictionary = CurrentGroupDictionary.GetCurrentGroupDictionary();
+        GroupDictionary groupDictionary = GroupDictionary.GetGroupDictionary();
         string uid = user.uid;
         string usn = user.usn;
         string groupKey;
@@ -33,21 +37,21 @@ public class GroupLeave
             Program.logger.Error("그룹 키가 없습니다. <GroupLeave-1>", webSockets, user);
             return;
         }
-        Program.currenGroup.TryRemove(uid, out _);
-        Program.group.TryGetValue(groupKey, out ConcurrentDictionary<string, WebSocket> sockets);
-        if (sockets == null)
+        currentGroupDictionary.RemoveMyGroup(uid);
+        ConcurrentDictionary<string, WebSocket> groupList = groupDictionary.GetGroupList(groupKey);
+        if (groupList == null)
         {
             Program.logger.Error("그룹키에 맞는 그룹이 존재하지 않습니다. <GroupLeave-2>", webSockets, user);
             return;
         }
-        sockets.TryGetValue(uid, out WebSocket mySocket);
+        groupList.TryGetValue(uid, out WebSocket mySocket);
         if (mySocket == null)
         {
             Program.logger.Error("해당 그룹에 나의 소켓이 존재하지 않습니다. <GroupLeave-3>", webSockets, user);
             return;
         }
 
-        sockets.TryRemove(uid, out _);
+        groupList.TryRemove(uid, out _);
         Program.logger.Info($"{usn}님이 {groupKey} 그룹에 퇴장하였습니다.");
         
         List<Task> tasks = new List<Task>();
@@ -63,15 +67,14 @@ public class GroupLeave
         encodedMessage = Encoding.UTF8.GetBytes(responseGroupLeaveJson);
         
         tasks.Add(mySocket.SendAsync(new ArraySegment<byte>(encodedMessage, 0, encodedMessage.Length), WebSocketMessageType.Text, true, cts.Token));
-        switch (sockets.Count)
+        switch (groupList.Count)
         {
             case 0: 
-                Program.group.TryRemove(groupKey, out _); 
-                
+                groupDictionary.RemoveGroupList(groupKey);
                 break;
             case int n when (n > 0):
                 // 떠난 그룹에 인원이 있다면 떠난 사람을 알림
-                foreach (var socket in sockets)
+                foreach (var socket in groupList)
                 {
                     if (socket.Value.State == WebSocketState.Open && socket.Key != uid)
                     {

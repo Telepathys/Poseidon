@@ -9,4 +9,7 @@ public enum MessageSendType
     GroupMessage,
     GroupJoin,
     GroupLeave,
+    RandomMatchWait,
+    RandomMatchCancel,
+    RandomMatchComplete,
 }

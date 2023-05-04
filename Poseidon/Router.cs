@@ -10,7 +10,8 @@ public class Router
 {
     private static readonly ChatRouter _chatRouter = new ChatRouter();
     private static readonly  GroupRouter _groupRouter = new GroupRouter();
-    public void Routing(ConcurrentDictionary<User,WebSocket> webSockets, User user, StringBuilder message, CancellationTokenSource cts)
+    private static readonly  MatchRouter _MatchRouter = new MatchRouter();
+    public void Routing(User user, StringBuilder message, CancellationTokenSource cts)
     {
         string route = JObject.Parse(message.ToString()).First.Path;
         switch (route)
@@ -18,12 +19,18 @@ public class Router
             case "server_message_send":
             case "whisper_message_send":
             case "group_message_send":
-                if (Program.messageLimit.Check(webSockets, user))
-                    _chatRouter.ChatRouting(route, webSockets, user, message, cts);
+                if (Program.messageLimit.Check(user))
+                    _chatRouter.ChatRouting(route, user, message, cts);
                 break;
             case "group_join":
             case "group_leave":
-                _groupRouter.GroupRouting(route, webSockets, user, message, cts);
+                _groupRouter.GroupRouting(route, user, message, cts);
+                break;
+            case "random_match_wait":
+            case "random_match_cancel":
+            case "random_match_join":
+            case "random_match_leave":
+                _MatchRouter.MatchRouting(route, user, message, cts);
                 break;
             default:
                 Program.logger.Error("Route not found");

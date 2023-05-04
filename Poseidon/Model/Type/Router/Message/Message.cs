@@ -46,3 +46,11 @@ public class ResponseSystemMessageSendType {
     public string username { get; set; }
     public string message { get; set; }
 }
+
+public class ResponseRandomMatchMessageSendType {
+    public string type { get; set; }
+    public string matchId { get; set; }
+    public string uid { get; set; }
+    public string username { get; set; }
+    public string message { get; set; }
+}

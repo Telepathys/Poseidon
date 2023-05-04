@@ -8,8 +8,10 @@ namespace Poseidon;
 
 public class ServerMessage
 {
-    public void Send(ConcurrentDictionary<User,WebSocket> webSockets, User user, StringBuilder message, CancellationTokenSource cts)
+    public void Send(User user, StringBuilder message, CancellationTokenSource cts)
     {
+        SocketDictionary socketDictionary = SocketDictionary.GetSocketDictionary();
+        ConcurrentDictionary<User, WebSocket> webSockets = socketDictionary.GetSocketList();
         ServerMessageSendType serverMessageSend = JsonConvert.DeserializeObject<ServerMessageSendType>(JObject.Parse(message.ToString()).First.First.ToString());
         string uid = user.uid;
         string usn = user.uid;

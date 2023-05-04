@@ -13,8 +13,11 @@ public class GroupJoin
     private ResponseGroupJoinType responseGroupJoinType;
     private string responseGroupJoinTypeJson;
     private GroupLeave groupLeave = new GroupLeave();
-    public void Join(ConcurrentDictionary<User,WebSocket> webSockets, User user, StringBuilder message, CancellationTokenSource cts)
+    public void Join(User user, StringBuilder message, CancellationTokenSource cts)
     {
+        SocketDictionary socketDictionary = SocketDictionary.GetSocketDictionary();
+        ConcurrentDictionary<User, WebSocket> webSockets = socketDictionary.GetSocketList();
+        CurrentGroupDictionary currentGroupDictionary = CurrentGroupDictionary.GetCurrentGroupDictionary();
         GroupJoinType GroupJoin = JsonConvert.DeserializeObject<GroupJoinType>(JObject.Parse(message.ToString()).First.First.ToString());
         string uid = user.uid;
         string usn = user.usn;
@@ -33,40 +36,41 @@ public class GroupJoin
             groupKey = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
 
-        Program.currenGroup.TryGetValue(uid, out string myGroupKey);
+        string myGroupKey = currentGroupDictionary.GetMyGroup(uid);
         if (myGroupKey != groupKey)
         {
             // 그룹에 속해 있고 같은 방이 아닐 경우 퇴장
             if (myGroupKey != null)
             {
-                groupLeave.Leave(webSockets, user, message, cts, myGroupKey);
+                groupLeave.Leave(user, message, cts, myGroupKey);
             }
-            Program.currenGroup.TryAdd(uid, groupKey);
+            currentGroupDictionary.SetMyGroup(uid, groupKey);
             CheckGroupAndJoin(groupKey, groupName, webSockets, user, cts);
         }
     }
     
     public void CheckGroupAndJoin(string groupKey, string groupName, ConcurrentDictionary<User, WebSocket> webSockets, User user, CancellationTokenSource cts)
     {
+        GroupDictionary groupDictionary = GroupDictionary.GetGroupDictionary();
         string uid = user.uid;
         string usn = user.usn;
-        Program.group.TryGetValue(groupKey, out ConcurrentDictionary<string, WebSocket> groupSocket);
+        ConcurrentDictionary<string, WebSocket> groupList = groupDictionary.GetGroupList(groupKey);
         webSockets.TryGetValue(user, out WebSocket mySocket);
         // 존재한다면
-        if (groupSocket != null)
+        if (groupList != null)
         {
             // 내가 해당 그룹에 존재 하지 않으면 추가
-            if (!groupSocket.ContainsKey(uid))
+            if (!groupList.ContainsKey(uid))
             {
-                groupSocket.TryAdd(uid, mySocket);
+                groupList.TryAdd(uid, mySocket);
             }
         }
         else // 존재하지 않는다면
         {
             ConcurrentDictionary<string, WebSocket> emptySocket = new ConcurrentDictionary<string, WebSocket>();
             emptySocket.TryAdd(uid, mySocket);
-            Program.group.TryAdd(groupKey, emptySocket);
-            groupSocket = emptySocket;
+            groupDictionary.SetGroupList(groupKey, emptySocket);
+            groupList = emptySocket;
         }
         Program.logger.Info($"{usn}님이 {groupName}({groupKey}) 그룹에 입장하였습니다.");
         
@@ -83,7 +87,7 @@ public class GroupJoin
         responseGroupJoinTypeJson = JsonConvert.SerializeObject(responseGroupJoinType);
         encodedMessage = Encoding.UTF8.GetBytes(responseGroupJoinTypeJson);
         
-        foreach (var socket in groupSocket)
+        foreach (var socket in groupList)
         {
             if (socket.Value.State == WebSocketState.Open)
             {

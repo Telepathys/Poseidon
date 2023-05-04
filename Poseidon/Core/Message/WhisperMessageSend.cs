@@ -12,8 +12,10 @@ public class WhisperMessage
     private ResponseWhisperMessageSendType responseWhisperMessageSend;
     private string responseWhisperMessageSendJson;
     
-    public void Send(ConcurrentDictionary<User,WebSocket> webSockets, User user, StringBuilder message, CancellationTokenSource cts)
+    public void Send(User user, StringBuilder message, CancellationTokenSource cts)
     {
+        SocketDictionary socketDictionary = SocketDictionary.GetSocketDictionary();
+        ConcurrentDictionary<User, WebSocket> webSockets = socketDictionary.GetSocketList();
         WhisperMessageSendType whisperMessageSend = JsonConvert.DeserializeObject<WhisperMessageSendType>(JObject.Parse(message.ToString()).First.First.ToString());
         string uid = user.uid;
         string usn = user.uid;

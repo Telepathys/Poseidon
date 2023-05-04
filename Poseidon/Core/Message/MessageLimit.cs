@@ -18,8 +18,10 @@ public class MessageLimit
     // 메세지 제한 시간
     readonly int banSecondlimit = 30;
     
-    public bool Check(ConcurrentDictionary<User,WebSocket> webSockets, User user)
+    public bool Check(User user)
     {
+        SocketDictionary socketDictionary = SocketDictionary.GetSocketDictionary();
+        ConcurrentDictionary<User, WebSocket> webSockets = socketDictionary.GetSocketList();
         DateTime now = DateTime.Now;
         string uid = user.uid;
         string usn = user.usn;
