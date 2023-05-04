@@ -50,6 +50,8 @@ public class Socket
         string uid = user.uid;
         SocketDictionary socketDictionary = SocketDictionary.GetSocketDictionary();
         CurrentGroupDictionary currentGroupDictionary = CurrentGroupDictionary.GetCurrentGroupDictionary();
+        MessageHistoryDictionary messageHistoryDictionary = MessageHistoryDictionary.GetMessageHistoryDictionary();
+        MessageBanDictionary messageBanDictionary = MessageBanDictionary.GetMessageBanDictionary();
         
         // 소켓 초기화
         socketDictionary.RemoveMySocket(user);
@@ -64,7 +66,7 @@ public class Socket
         }
         
         // 메세지 제한 초기화
-        MessageLimit.messageHistory.TryRemove(uid, out _);
-        MessageLimit.messageBan.TryRemove(uid, out _);
+        messageHistoryDictionary.RemoveMyMessageHistory(uid);
+        messageBanDictionary.RemoveMessageBan(uid);
     }
 }

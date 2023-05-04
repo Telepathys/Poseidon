@@ -9,8 +9,6 @@ namespace Poseidon;
 
 public class MessageLimit
 {
-    public static ConcurrentDictionary<string, DateTime []> messageHistory = new ConcurrentDictionary<string, DateTime []>();
-    public static ConcurrentDictionary<string, DateTime> messageBan = new ConcurrentDictionary<string, DateTime>();
     // 메세지 초당 개수 제한
     readonly int messageCountlimit = 5;
     // 메세지 개수 제한 체크 시간
@@ -22,23 +20,25 @@ public class MessageLimit
     {
         SocketDictionary socketDictionary = SocketDictionary.GetSocketDictionary();
         ConcurrentDictionary<User, WebSocket> webSockets = socketDictionary.GetSocketList();
+        MessageHistoryDictionary messageHistoryDictionary = MessageHistoryDictionary.GetMessageHistoryDictionary();
+        MessageBanDictionary messageBanDictionary = MessageBanDictionary.GetMessageBanDictionary();
         DateTime now = DateTime.Now;
         string uid = user.uid;
         string usn = user.usn;
         // 메세지 밴 유저인지 확인
-        if (messageBan.ContainsKey(uid))
+        if (messageBanDictionary.Check(uid))
         {
-            messageBan.TryGetValue(uid, out DateTime banTime);
+            DateTime banTime = messageBanDictionary.GetMessageBan(uid);
             int leftBanTime = banSecondlimit - (now - banTime).Seconds;
             if (leftBanTime > 0)
             {
                 Program.systemMessage.Send(webSockets, user, $"메세지가 제한된 상태입니다. {leftBanTime}초 후에 다시 시도해주세요.");
                 return false;
             }
-            messageBan.TryRemove(uid, out _);
+            messageBanDictionary.RemoveMessageBan(uid);
         }
-
-        messageHistory.TryGetValue(uid, out DateTime [] messageHistoryArray);
+        
+        DateTime[] messageHistoryArray = messageHistoryDictionary.GetMyMessageHistory(uid);
         if (messageHistoryArray == null)
         {
             messageHistoryArray = new DateTime[]{};
@@ -58,14 +58,14 @@ public class MessageLimit
         {
             Program.logger.Warn($"{usn}({uid})님이 무분별한 메세지로 {banSecondlimit}초간 메세지 전송이 제한됩니다.");
             Program.systemMessage.Send(webSockets, user, $"무분별한 메세지로 {banSecondlimit}초간 메세지 전송이 제한됩니다.");
-            messageBan.TryAdd(uid, now);
-            messageHistory.TryRemove(uid,out _);
+            messageBanDictionary.SetMessageBan(uid);
+            messageHistoryDictionary.RemoveMyMessageHistory(uid);
             return false;
         }
 
-        messageHistory.TryRemove(uid,out _);
-        DateTime [] newChatDateTimeArray = messageHistoryArray.Append(now).ToArray();
-        messageHistory.TryAdd(uid,newChatDateTimeArray);
+        messageHistoryDictionary.RemoveMyMessageHistory(uid);
+        DateTime[] newChatDateTimeArray = messageHistoryArray.Append(now).ToArray();
+        messageHistoryDictionary.SetMyMessageHistory(uid, newChatDateTimeArray);
 
         return true;
     }

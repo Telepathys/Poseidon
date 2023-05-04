@@ -31,7 +31,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Model\Dictionary\Message\" />
       <Folder Include="Model\Type\" />
     </ItemGroup>
 

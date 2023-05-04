@@ -72,7 +72,6 @@ public class RandomMatchSystem
         using var timer = new Timer(async state =>
         {
             ConcurrentDictionary<User, WebSocket> match = matchDictionary.GetMatch(matchId);
-            Console.WriteLine(match?.Count);
             if (match?.Count == matchRequireUserCount)
             {
                 cancellationTokenSource.Cancel();
@@ -131,6 +130,7 @@ public class RandomMatchSystem
             string responseMatchStatusJson = JsonConvert.SerializeObject(responseMatchStatusType);
             byte[] encodedMessage = Encoding.UTF8.GetBytes(responseMatchStatusJson);
             
+            // 매치 취소로 인한 매치 관련 딕셔너리 삭제
             matchDictionary.RemoveMatch(matchId);
             activeMatchDictionary.RemoveActiveMatch(matchId);
             foreach (var randomMatchUser in completeRandomMatch)
@@ -140,6 +140,8 @@ public class RandomMatchSystem
                 currentMatchDictionary.RemoveMyMatch(uid);
                 
             }
+            
+            // 매치 실패로 인한 매치 대기 딕셔너리에 다시 추가
             foreach (var matchJoinData in match)
             {
                 User user = matchJoinData.Key;
