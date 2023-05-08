@@ -7,15 +7,16 @@ namespace Poseidon;
 
 public class RandomMatchSystem
 {
+    private static readonly App app = AppDictionary.GetAppDictionary().GetApp();
     RandomMatchDictionary randomMatchDictionary = RandomMatchDictionary.GetRandomMatchDictionary();
     ActiveMatchDictionary activeMatchDictionary = ActiveMatchDictionary.GetActiveMatchDictionary();
     RandomMatchMessageSend randomMatchMessageSend = new RandomMatchMessageSend();
     Mutex mutex = new Mutex(false,"RandomMatchSystemDetect");
     Random random = new Random();
     // 한개의 매칭당 필요 인원
-    readonly int matchRequireUserCount = 2;
-    readonly double matchMakeCountControl = 0.1;
-    private readonly int matchJoinLimitTime = 30;
+    readonly int matchRequireUserCount = app.matchRequireUserCount != null ? app.matchRequireUserCount : 2;
+    readonly double matchMakeCountControl = app.matchMakeCountControl != null ? app.matchMakeCountControl : 0.1;
+    private readonly int matchJoinLimitTime = app.matchJoinLimitTime != null ? app.matchJoinLimitTime : 30;
     public void Detect(object? state)
     {
         mutex.WaitOne();

@@ -28,10 +28,7 @@
       <PackageReference Include="Npgsql" Version="7.0.2" />
       <PackageReference Include="SlackLogger" Version="4.0.2" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.29.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Model\Type\" />
+      <PackageReference Include="YamlDotNet" Version="13.1.0" />
     </ItemGroup>
 
 </Project>

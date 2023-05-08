@@ -9,12 +9,13 @@ namespace Poseidon;
 
 public class MessageLimit
 {
+    private static readonly App app = AppDictionary.GetAppDictionary().GetApp();
     // 메세지 초당 개수 제한
-    readonly int messageCountlimit = 5;
+    readonly int messageLimitCount = app.messageLimitCount != null ? app.messageLimitCount : 5;
     // 메세지 개수 제한 체크 시간
-    readonly int messageSecondlimit = 5;
+    readonly int messageLimitSecond = app.messageLimitSecond != null ? app.messageLimitSecond : 5;
     // 메세지 제한 시간
-    readonly int banSecondlimit = 30;
+    readonly int messageBanSecond = app.messageBanSecond != null ? app.messageBanSecond : 30;
     
     public bool Check(User user)
     {
@@ -29,7 +30,7 @@ public class MessageLimit
         if (messageBanDictionary.Check(uid))
         {
             DateTime banTime = messageBanDictionary.GetMessageBan(uid);
-            int leftBanTime = banSecondlimit - (now - banTime).Seconds;
+            int leftBanTime = messageBanSecond - (now - banTime).Seconds;
             if (leftBanTime > 0)
             {
                 Program.systemMessage.Send(user, $"메세지가 제한된 상태입니다. {leftBanTime}초 후에 다시 시도해주세요.");
@@ -48,16 +49,16 @@ public class MessageLimit
         foreach (var messageTime in messageHistoryArray)
         {
             TimeSpan dateDiff = now - messageTime;
-            if(dateDiff.Seconds > messageSecondlimit)
+            if(dateDiff.Seconds > messageLimitSecond)
             {
                 messageHistoryArray = messageHistoryArray.Where(e => e != messageTime).ToArray();
             }
         }
 
-        if (messageHistoryArray.Length >= messageCountlimit)
+        if (messageHistoryArray.Length >= messageLimitCount)
         {
-            Program.logger.Warn($"{usn}({uid})님이 무분별한 메세지로 {banSecondlimit}초간 메세지 전송이 제한됩니다.");
-            Program.systemMessage.Send(user, $"무분별한 메세지로 {banSecondlimit}초간 메세지 전송이 제한됩니다.");
+            Program.logger.Warn($"{usn}({uid})님이 무분별한 메세지로 {messageBanSecond}초간 메세지 전송이 제한됩니다.");
+            Program.systemMessage.Send(user, $"무분별한 메세지로 {messageBanSecond}초간 메세지 전송이 제한됩니다.");
             messageBanDictionary.SetMessageBan(uid);
             messageHistoryDictionary.RemoveMyMessageHistory(uid);
             return false;
