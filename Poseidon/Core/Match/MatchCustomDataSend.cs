@@ -17,6 +17,12 @@ public class MatchCustomData
         string usn = user.usn;
         string matchId = currentMatchDictionary.GetMyMatchId(uid);
         int dataType = matchCustomData.dataType;
+        matchCustomData.data.GetType();
+        if(matchCustomData.data.GetType() != typeof(byte[]))
+        {
+            Program.logger.Error("데이터 타입이 byte[]가 아닙니다. <MatchCustomData-1>", user);
+            return;
+        }
         byte[] data = matchCustomData.data;
         
         if (matchId != null)

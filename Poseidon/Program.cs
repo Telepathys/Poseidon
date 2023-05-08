@@ -54,7 +54,6 @@ class Program
                 await next.Invoke();
             }
         });
-        
         app.Run();
     }
 }

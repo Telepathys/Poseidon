@@ -5,11 +5,11 @@ namespace Poseidon;
 public class ActiveMatchDictionary
 {
     private static ActiveMatchDictionary _activeMatchDictionary = null;
-    private static string[] activeMatchList;
+    private static ConcurrentDictionary<string, string[]> activeMatchList;
 
     private ActiveMatchDictionary()
     {
-        activeMatchList = new string[]{};
+        activeMatchList = new ConcurrentDictionary<string, string[]>();
     }
 
     public static ActiveMatchDictionary GetActiveMatchDictionary()
@@ -22,29 +22,24 @@ public class ActiveMatchDictionary
         return _activeMatchDictionary;
     }
 
-    public string[] GetActiveMatchIdList()
-    {
-        return activeMatchList;
-    }
     
     public bool CheckActiveMatch(string matchId)
     {
-        return Array.Exists(activeMatchList, element => element == matchId);
+        return activeMatchList.ContainsKey(matchId);
+    }
+    
+    public string[] GetActiveMatchUserList(string matchId)
+    {
+        return activeMatchList.TryGetValue(matchId, out var uid) ? uid : null;
     }
 
-    public void SetActiveMatch(string matchId)
+    public void SetActiveMatch(string matchId, string[] uid)
     {
-        if (!CheckActiveMatch(matchId))
-        {
-            activeMatchList = activeMatchList.Append(matchId).ToArray();
-        }
+        activeMatchList.TryAdd(matchId, uid);
     }
     
     public void RemoveActiveMatch(string matchId)
     {
-        if (CheckActiveMatch(matchId))
-        {
-            activeMatchList = activeMatchList.Where(element => element != matchId).ToArray();
-        }
+        activeMatchList.TryRemove(matchId, out _);
     }
 }

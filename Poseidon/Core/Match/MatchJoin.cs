@@ -24,12 +24,6 @@ public class MatchJoin
         string matchId = matchJoin.matchId;
         webSockets.TryGetValue(user, out WebSocket mySocket);
         
-        if(currentMatchDictionary.Check(uid))
-        {
-            Program.systemMessage.Send(user, "이미 다른 매치에 참여중입니다.");
-            return;
-        }
-        
         if (matchId == null || matchId.Length != 36)
         {
             Program.logger.Error("매치 아이디가 없거나 정상적이지 않은 매치 아이디입니다. <MatchJoin-1>", user);
@@ -43,6 +37,14 @@ public class MatchJoin
             return;
         }
 
+        string[] thisMatchUserList = activeMatchDictionary.GetActiveMatchUserList(matchId);
+        if (!Array.Exists(thisMatchUserList, element => element == uid))
+        {
+            Program.logger.Error("해당 매치에 참여가능한 상태가 아닙니다. <MatchJoin-3>", user);
+            return;
+        }
+
+        currentMatchDictionary.SetMyMatch(uid, matchId);
         ConcurrentDictionary<User, WebSocket> matchList = matchDictionary.GetMatch(matchId);
         if (matchList != null)
         {

@@ -17,10 +17,9 @@ public class Socket
         User user = jwtTokenSystem.ValidateJwtToken(token);
         if (user != null)
         {
-            ConcurrentDictionary<User, WebSocket> webSockets = socketDictionary.GetSocketList();
             Program.logger.Info($"{user.usn}({user.uid})님이 서버 연결");
-            Init(webSockets, user);
-            webSockets = socketDictionary.SetMySocket(user, webSocket);
+            Init(user);
+            socketDictionary.SetMySocket(user, webSocket);
             var buffer = new byte[1024 * 4];
             CancellationTokenSource cts = new CancellationTokenSource();
             while (true)
@@ -31,9 +30,10 @@ public class Socket
                 if (result.MessageType == WebSocketMessageType.Close)
                 {
                     Program.logger.Info($"{user.usn}님이 서버 연결 해제");
-                    Init(webSockets, user);
+                    Init(user);
                     break;
                 }
+                
                 message.Append(Encoding.UTF8.GetString(buffer, 0, result.Count));
                 Program.Router.Routing(user, message, cts);
             }
@@ -45,7 +45,7 @@ public class Socket
         }
     }
     
-    public void Init(ConcurrentDictionary<User,WebSocket> webSockets, User user)
+    public void Init(User user)
     {
         string uid = user.uid;
         SocketDictionary socketDictionary = SocketDictionary.GetSocketDictionary();

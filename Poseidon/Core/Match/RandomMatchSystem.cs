@@ -44,13 +44,15 @@ public class RandomMatchSystem
                     .ToDictionary(x => x.Key, x => x.Value);
                 
                 ConcurrentDictionary<User,WebSocket> completeRandomMatch = new ConcurrentDictionary<User,WebSocket>(randomPairs);
+                string[] userList = new string[] { };
                 foreach (var ramdomMatchWaitUser in completeRandomMatch)
                 {
                     User user = ramdomMatchWaitUser.Key;
+                    userList = userList.Append(user.uid).ToArray();
                     randomMatchMessageSend.Send(user, MessageSendType.RandomMatchComplete,"랜덤 매치가 성공적으로 매칭되었습니다.", matchId);
                     randomMatchWaitList.TryRemove(user, out _);
                 }
-                activeMatchDictionary.SetActiveMatch(matchId);
+                activeMatchDictionary.SetActiveMatch(matchId, userList);
                 waitMatchJoin(matchId, completeRandomMatch);
             }
         }
@@ -108,7 +110,6 @@ public class RandomMatchSystem
                 {
                     tasks.Add(socket.Value.SendAsync(new ArraySegment<byte>(encodedMessage, 0, encodedMessage.Length), WebSocketMessageType.Text, true, CancellationToken.None));
                 }
-                currentMatchDictionary.SetMyMatch(socket.Key.uid, matchId);
             }
             Task.WhenAll(tasks);
             Program.logger.Info($"{matchId} 매치가 시작됩니다.");
@@ -135,7 +136,6 @@ public class RandomMatchSystem
                 User user = randomMatchUser.Key;
                 string uid = user.uid;
                 currentMatchDictionary.RemoveMyMatch(uid);
-                
             }
             
             // 매치 실패로 인한 매치 대기 딕셔너리에 다시 추가
