@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "Poseidon";
+option java_package = "boppin";
+option java_multiple_files = true;
+
+service Boppin {
+  rpc SayHello (TTTRequest) returns (TTTReply) {}
+}
+
+message TTTRequest {
+  string name = 1;
+}
+
+message TTTReply {
+  string message = 1;
+}

@@ -40,7 +40,7 @@ public class Socket
         }
         else
         {
-            Program.logger.Error("Token is invalid");
+            Program.logger.Error("Websocket Token is invalid");
             context.Response.StatusCode = 400;
         }
     }

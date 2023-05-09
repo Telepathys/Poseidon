@@ -31,6 +31,12 @@ public class Router
             case "match_custom_data_send":
                 _MatchRouter.MatchRouting(route, user, message, cts);
                 break;
+            case "teee":
+                Console.WriteLine("dasdas");
+                BoppinGrpcClient client = new BoppinGrpcClient("http://localhost:3001");
+                var response = client.SayHelloAsync(user);
+                Console.WriteLine("Greeting: " + response.Result);
+                break;
             default:
                 Program.logger.Error("Route not found");
                 break;

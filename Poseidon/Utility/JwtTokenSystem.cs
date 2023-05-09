@@ -29,6 +29,7 @@ public class JwtTokenSystem
             User user = new User();
             user.uid = uid;
             user.usn = usn;
+            user.token = token;
 
             return user;
         }

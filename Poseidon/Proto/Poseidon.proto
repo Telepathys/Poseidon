@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Poseidon";
+option java_package = "poseidon";
+option java_multiple_files = true;
+
+service Poseidon {
+    rpc SayHello (HelloRequest) returns (HelloReply);
+    rpc GetUserList (google.protobuf.Empty) returns (UserListReply);
+}
+
+message UserListReply {
+    repeated UserProto userProto = 1;
+    int32 total = 2;
+}
+
+message UserProto {
+    string uid=1;
+    string usn=2;
+}
+
+message HelloRequest {
+    string name = 1;
+}
+
+message HelloReply {
+    string message = 1;
+}
