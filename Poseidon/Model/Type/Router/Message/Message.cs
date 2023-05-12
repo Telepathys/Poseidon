@@ -65,3 +65,9 @@ public class ResponseRandomMatchMessageSendType {
     public string username { get; set; }
     public string message { get; set; }
 }
+
+public class ResponseNoticeMessageSendType {
+    public string type { get; set; }
+    public string noticeType { get; set; }
+    public int noticeCount { get; set; }
+}

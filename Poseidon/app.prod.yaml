@@ -1,6 +1,7 @@
 messageLimitSecond: 5 # 메세지 제한 시간 (5초안에 몇번)
 messageLimitCount: 5 # 메세지 제안 개수 (5초안에 5번 이상 채팅하면 밴)
 messageBanSecond: 30 # 메세지 밴 시간
+matchCheckTime: 1 # 매칭 대기자 체크 시간 (매칭 대기자 있는지 몇초 마다 확인)
 matchRequireUserCount: 2 # 매칭에 필요한 유저 수
 matchMakeCountControl: 0.1 # 매칭 컨트롤 시간
 matchJoinLimitTime: 10 # 매칭 참가 제한 시간

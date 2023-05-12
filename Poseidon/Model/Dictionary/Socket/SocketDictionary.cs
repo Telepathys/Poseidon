@@ -27,6 +27,15 @@ public class SocketDictionary
     {
         return socketList;
     }
+    
+    public WebSocket GetTargetSocket(string uid)
+    {
+        ConcurrentDictionary<User, WebSocket> webSockets = GetSocketList();
+        User findUser = webSockets.Keys.FirstOrDefault(thisUser => thisUser.uid == uid);
+        if(findUser == null) return null;
+        webSockets.TryGetValue(findUser, out WebSocket targetSocket);
+        return targetSocket;
+    }
 
     public ConcurrentDictionary<User, WebSocket> SetMySocket(User user, WebSocket webSocket)
     {
